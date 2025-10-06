@@ -9,7 +9,7 @@ def embed_query(text):
     return r.json()["embeddings"][0]
 
 # Example user input
-user_input = "python, sql, machine learning, deep learning, statistics"
+user_input = "java , javascript , html , css , reactjs"
 query_emb = embed_query(user_input)
 
 recommender = CareerRecommender("data/embeddings.joblib")
