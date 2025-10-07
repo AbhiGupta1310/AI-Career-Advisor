@@ -7,7 +7,7 @@ class CareerRecommender:
         self.df = joblib.load(embeddings_path)
         self.embeddings = np.vstack(self.df["embedding"].values)
 
-    def find_similar_profiles(self, query_embedding, top_k=5):
+    def find_similar_profiles(self, query_embedding, top_k=10):
         """Find top similar profiles based on cosine similarity."""
         sims = cosine_similarity([query_embedding], self.embeddings)[0]
         top_idx = sims.argsort()[-top_k:][::-1]
@@ -20,7 +20,7 @@ class CareerRecommender:
             "text"
         ]]
 
-    def recommend_roles(self, query_embedding, top_k=5):
+    def recommend_roles(self, query_embedding, top_k=10):
         """Recommend similar career roles."""
         top_profiles = self.find_similar_profiles(query_embedding, top_k)
         return top_profiles["current_position"].value_counts().head(3).index.tolist()
