@@ -27,7 +27,7 @@ An intelligent career recommendation system that uses advanced NLP and machine l
 
   - BGE-M3 for text embeddings
   - K-Means clustering
-  - Random Forest Classifier
+  - XgBoost
   - TF-IDF vectorization
 
 - **Additional Libraries**:
@@ -132,9 +132,11 @@ suggested_skills = recommender.recommend_skills(query_emb)
 
 ```
 AI-Career-Advisor/
-├──  data/                          # Processed data and models
-├──  csv/                           # Intermediate CSV files
+├──  data/                          # Processed embedding data
+├──  csv/                           # Processed CSV files
 ├──  json/                          # Raw JSON profile data
+├──  models/                        # saved models
+├──  fixing_jsons.py                # fixing json into usable format
 ├──  career_embeddings.py           # Embedding generation
 ├──  recommender.py                 # Recommendation system
 ├──  preprocess.py                  # Data preprocessing
