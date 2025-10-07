@@ -64,10 +64,7 @@ An intelligent career recommendation system that uses advanced NLP and machine l
    pip install pandas numpy scikit-learn plotly seaborn requests tqdm joblib
    ```
 
-Here's the markdown text for those sections:
-
-````markdown
-## 2. Data Preparation:
+2. **Data Preparation**:
 
 ```bash
 # Process JSON files to CSV
@@ -76,9 +73,8 @@ python preprocess.py
 # Generate embeddings
 python career_embeddings.py
 ```
-````
 
-## 3. Run the Advisor:
+3. **Run the Advisor**:
 
 ```bash
 # Start the recommendation system
