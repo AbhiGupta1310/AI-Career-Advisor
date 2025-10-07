@@ -1,134 +1,160 @@
-# AI Career Advisor 🎯
+# AI Career Advisor
 
-An intelligent career recommendation system that uses advanced NLP and machine learning techniques to provide personalized career advice, skill recommendations, and profile matching.
+An intelligent career recommendation system using advanced ML techniques for personalized career path suggestions, skill recommendations, and profile classification. The system leverages embedding-based similarity matching and XGBoost classification for accurate career predictions.
+
+---
 
 ## 🌟 Features
 
-- **Profile Similarity Matching**: Uses BGE-M3 embeddings to find similar career profiles
-- **Career Role Recommendations**: Suggests potential career paths based on your skills
-- **Skill Gap Analysis**: Identifies missing skills for target roles
-- **Cluster Analysis**: Groups similar profiles to identify career patterns
-- **Interactive Visualizations**: Explores career data through interactive plots
-- **Multiple Career Tracks**: Covers various tech roles including:
-  - Data Science & Analytics
-  - Software Development
-  - Blockchain & Web3
+- **Profile Type Classification**: XGBoost-powered classification of career profiles
+- **Skill Clustering**: Advanced embedding-based skill clustering using BGE-M3
+- **Skill Recommendations**: Smart skill suggestions using TF-IDF and cosine similarity
+- **Interactive Visualizations**: PCA-based cluster visualizations
+- **Career Tracks Analysis**: Covers multiple tech roles:
+  - ML Engineering (ML_Eng)
+  - Data Science (DS)
+  - Data Analytics (DA)
+  - Business Analysis (BA)
+  - Business Intelligence (BI_Dev)
+  - Backend Development
+  - Frontend Development
+  - Full Stack Development
   - Mobile Development
-  - Business Analysis
+  - Blockchain & Web3 Development
+  - Security Analysis
+  - MLOps Engineering
+
+---
 
 ## 🛠️ Technology Stack
 
-- **Core Technologies**:
-  - Python 3.x
-  - Pandas & NumPy for data processing
-  - Scikit-learn for machine learning
-  - Plotly & Seaborn for visualizations
-- **Models & Embeddings**:
+### Core Technologies
 
-  - BGE-M3 for text embeddings
-  - K-Means clustering
-  - XgBoost
-  - TF-IDF vectorization
+- Python 3.x
+- Pandas & NumPy for data processing
+- Scikit-learn for ML pipelines
+- XGBoost for classification
 
-- **Additional Libraries**:
-  - Joblib for model persistence
-  - Requests for API communication
-  - tqdm for progress tracking
+### Models & Techniques
+
+- BGE-M3 embeddings for semantic analysis
+- XGBoost Classifier
+- K-Means clustering
+- TF-IDF vectorization
+- PCA for dimensionality reduction
+
+### Additional Libraries
+
+- Joblib for model persistence
+- Matplotlib & Plotly for visualizations
+- Requests for API communication
+
+---
 
 ## 📊 Data Processing Pipeline
 
-1. **Data Collection**: JSON files containing professional profiles
-2. **Preprocessing**:
+### 1. Data Preprocessing
 
-   - Experience calculation
-   - Skills extraction
-   - Education & certification parsing
-   - Location data normalization
+- Duplicate removal
+- Missing value handling
+- Numeric data cleaning
+- Text data normalization
 
-3. **Feature Engineering**:
-   - Text embeddings generation
-   - Skill count analysis
-   - Career path clustering
-   - Profile type classification
+### 2. Feature Engineering
+
+- Text embeddings using BGE-M3
+- TF-IDF vectorization
+- One-hot encoding for categorical features
+- Standard scaling for numeric features
+
+### 3. Model Pipeline
+
+- XGBoost classification model
+- K-Means clustering (k=6)
+- PCA visualization
+
+---
 
 ## 🚀 Getting Started
 
-1. **Setup Environment**:
-
-   ```bash
-   # Clone the repository
-   git clone [repository-url]
-   cd AI-Career-Advisor
-
-   # Install required packages
-   pip install pandas numpy scikit-learn plotly seaborn requests tqdm joblib
-   ```
-
-2. **Data Preparation**:
+### Environment Setup
 
 ```bash
-# Process JSON files to CSV
-python preprocess.py
+# Clone the repository
+git clone [repository-url]
+cd AI-Career-Advisor
 
-# Generate embeddings
-python career_embeddings.py
+# Install required packages
+pip install pandas numpy scikit-learn xgboost plotly requests joblib matplotlib
 ```
 
-3. **Run the Advisor**:
+### Prepare Environment
+
+- Ensure Ollama is running locally (for BGE-M3 embeddings)
+- Port 11434 should be available for the Ollama API
+
+### Run Analysis
 
 ```bash
-# Start the recommendation system
-python main.py
+# Start Jupyter notebook
+jupyter notebook main.ipynb
 ```
+
+---
 
 ## 💡 Usage Examples
 
 ```python
-# Initialize the recommender
-recommender = CareerRecommender("data/embeddings.joblib")
+import pandas as pd
+import joblib
 
-# Get recommendations for a skill set
-user_input = "python, data analysis, sql, tableau"
-query_emb = embed_query(user_input)
+# Load the trained models
+model = joblib.load("models/profile_type_xgb_pipeline.joblib")
+kmeans = joblib.load("models/skill_clusters2.joblib")
 
-# Find similar profiles
-similar_profiles = recommender.find_similar_profiles(query_emb)
+# Example profile
+new_profile = {
+    "years_of_experience": 5,
+    "education_degree": "B.Tech",
+    "education_institution": "IIT Delhi",
+    "total_skills": "Python, Machine Learning, Data Analysis",
+    "certifications": "AWS Certified Machine Learning",
+    "city": "Bangalore",
+    "state": "Karnataka"
+}
 
-# Get role recommendations
-recommended_roles = recommender.recommend_roles(query_emb)
+# Get profile type prediction
+profile_type = model.predict(pd.DataFrame([new_profile]))
 
-# Get skill suggestions
-suggested_skills = recommender.recommend_skills(query_emb)
+# Get skill recommendations
+recommended_skills = recommend_skills(new_profile["total_skills"])
 ```
 
-## 📊 Analysis Features
+---
 
-- Career cluster visualization
-- Skill distribution analysis
-- Experience level insights
-- Educational background patterns
-- Geographical distribution of roles
+## 📈 Analysis Features
 
-## 🧠 Model Pipeline
+### Profile Classification
 
-### 1. Text Embedding:
+- Multi-class classification using XGBoost
+- Comprehensive feature preprocessing
+- Label encoding for target variables
 
-- Uses BGE-M3 model for semantic understanding
-- Processes skills, roles, and profile descriptions
+### Skill Clustering
 
-### 2. Clustering:
+- 6 distinct skill clusters
+- Embedding-based similarity
+- PCA visualization
 
-- K-Means clustering for career grouping
-- PCA for dimensionality reduction
-- Silhouette analysis for cluster validation
+### Skill Recommendations
 
-### 3. Classification:
+- TF-IDF based similarity
+- Context-aware suggestions
+- Filtered for novelty
 
-- Random Forest for profile type prediction
-- TF-IDF for skill importance analysis
-- Cross-validation for model evaluation
+---
 
-## 📂 Project Structure
+## 📁 Project Structure
 
 ```
 AI-Career-Advisor/
@@ -144,20 +170,26 @@ AI-Career-Advisor/
 └──  main.ipynb                     # Analysis notebook
 ```
 
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## 📄 License
+---
+
+## 📜 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 💬 Acknowledgments
+---
 
-- Thanks to all contributors and data providers
+## 👥 Acknowledgments
+
+- Thanks to all contributors
 - Special thanks to the BGE-M3 model creators
-- Inspiration from real-world career development needs
+- XGBoost and scikit-learn communities
 
 ---
 
-Created with ❤️ by Abhi Gupta
+**Created with ❤️ by Abhi Gupta**
