@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-import { FaGithub, FaLinkedinIn, FaInstagram, FaTwitter } from "react-icons/fa";
+import { FaGithub, FaLinkedinIn, FaMedium, FaGlobe } from "react-icons/fa";
 import Avatar3D from "./Avatar3D";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
@@ -113,10 +113,34 @@ export default function App() {
 
       {/* Social Sidebar */}
       <aside className="social-sidebar">
-        <FaGithub className="social-icon" />
-        <FaLinkedinIn className="social-icon" />
-        <FaTwitter className="social-icon" />
-        <FaInstagram className="social-icon" />
+        <a
+          href="https://github.com/AbhiGupta1310"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <FaGithub className="social-icon" />
+        </a>
+        <a
+          href="https://www.linkedin.com/in/abhi-gupta-data-science/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <FaLinkedinIn className="social-icon" />
+        </a>
+        <a
+          href="https://medium.com/@abhigupta5064"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <FaMedium className="social-icon" />
+        </a>
+        <a
+          href="https://abhi-gupta.me/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <FaGlobe className="social-icon" />
+        </a>
       </aside>
 
       {/* Left Panel: Hero text + Robot */}
