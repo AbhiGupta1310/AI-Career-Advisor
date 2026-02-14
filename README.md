@@ -1,19 +1,19 @@
-# 🧠 AI Career Advisor
+# AI Career Advisor
 
 AI-powered career prediction, skill recommendation, and personalized guidance system. Uses XGBoost classification, TF-IDF similarity matching, and Groq Llama 3.3 70B to deliver action-oriented career advice in a modern, interactive chat interface.
 
-**[Live Demo →](#)** _(Deploy to Render with one click)_
+**[Live Demo →](https://career-intelligence.onrender.com/)**
 
 ---
 
-## ✨ Features
+## Features
 
-- **🎯 Career Profile Prediction** — XGBoost classifier predicts your ideal career path from your skills
-- **✨ Smart Skill Recommendations** — Profile-aware filtering finds the most high-impact skills for your career
-- **🤖 AI Career Chat** — Groq Llama 3.3 powers a conversational advisor that understands your context
-- **🎨 Modern React UI** — Beautiful, responsive chat interface with 3D avatar and "Matrix" aesthetics
-- **📡 Robust Backend** — FastAPI server handling predictions, recommendations, and chat logic
-- **☁️ Cloud-Ready** — Render deployment blueprint included
+- **Career Profile Prediction** — XGBoost classifier predicts your ideal career path from your skills
+- **Smart Skill Recommendations** — Profile-aware filtering finds the most high-impact skills for your career
+- **AI Career Chat** — Groq Llama 3.3 powers a conversational advisor that understands your context
+- **Modern React UI** — Beautiful, responsive chat interface with 3D avatar and "Matrix" aesthetics
+- **Robust Backend** — FastAPI server handling predictions, recommendations, and chat logic
+- **Cloud-Ready** — Render deployment blueprint included
 
 ### Supported Career Tracks
 
@@ -21,7 +21,7 @@ ML Engineer · Data Scientist · Data Analyst · Business Analyst · BI Develope
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -56,7 +56,7 @@ make dev           # Starts both Backend (port 8000) and Frontend (port 5173)
 2. Go to [render.com](https://render.com) → New → Blueprint
 3. Connect your repo (it auto-detects `render.yaml`)
 4. Add `GROQ_API_KEY` as an environment variable
-5. Deploy! 🚀
+5. Deploy!
 
 ---
 
@@ -102,21 +102,6 @@ AI-Career-Advisor/
 | **Config**     | pydantic-settings + `.env` |
 | **CI/CD**      | GitHub Actions             |
 | **Deploy**     | Render                     |
-
----
-
-## 🧪 Testing
-
-```bash
-make test    # Run backend tests
-make lint    # Lint code
-```
-
----
-
-## 📜 License
-
-MIT License
 
 ---
 
