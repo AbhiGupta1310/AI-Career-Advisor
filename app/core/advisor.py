@@ -35,6 +35,7 @@ Return ONLY a valid JSON object with these fields:
 - "years_of_experience": integer (0 if not mentioned)
 - "education": string (e.g., "Bachelor's", "Master's", "PhD", or "" if not mentioned)
 - "certifications": comma-separated string (or "" if none mentioned)
+- "is_conversational": boolean (true if the message is purely conversational like greetings, "thank you", "??", or a follow-up question that doesn't provide new skills or profile info)
 
 Be thorough in extracting skills — include programming languages, frameworks, tools, methodologies, and soft skills.
 If the user asks a general career question without listing skills, extract what you can and set skills to "general".
@@ -61,14 +62,15 @@ Return ONLY the JSON. No markdown, no explanation.""",
             "years_of_experience": 0,
             "education": "",
             "certifications": "",
+            "is_conversational": True,
         }
 
 
 def generate_chat_response(
     user_message: str,
-    predicted_profile: str,
-    recommended_skills: list[str],
-    extracted_info: dict,
+    predicted_profile: str | None = None,
+    recommended_skills: list[str] | None = None,
+    extracted_info: dict | None = None,
 ) -> str:
     """
     Generate a comprehensive, conversational career advice response.
@@ -78,16 +80,17 @@ def generate_chat_response(
     client = _get_groq_client()
 
     skills_to_learn = ", ".join(recommended_skills) if recommended_skills else "N/A"
+    extracted_info = extracted_info or {}
     user_skills = extracted_info.get("skills", "Not specified")
     experience = extracted_info.get("years_of_experience", 0)
     education = extracted_info.get("education", "Not specified")
     certs = extracted_info.get("certifications", "None")
+    is_conv = extracted_info.get("is_conversational", False)
 
-    prompt = f"""You are Career Intelligence AI — an expert career advisor built on real career data analysis. A user just asked you for career guidance. Here's what you know:
-
-## User's Message
-"{user_message}"
-
+    # Context string for ML results
+    ml_context = ""
+    if predicted_profile and not is_conv:
+        ml_context = f"""
 ## ML Analysis Results (from our trained models)
 - **Extracted Skills**: {user_skills}
 - **AI-Predicted Career Profile**: {predicted_profile}
@@ -95,15 +98,26 @@ def generate_chat_response(
 - **Education**: {education or "Not specified"}
 - **Certifications**: {certs or "None"}
 - **Recommended Skills to Learn**: {skills_to_learn}
+"""
+
+    prompt = f"""You are Career Intelligence AI — an expert career advisor built on real career data analysis. A user just asked you a question. Here's what you know:
+
+## User's Message
+"{user_message}"
+{ml_context}
 
 ## Your Task
-Give a warm, helpful, conversational response that:
+Give a warm, helpful, conversational response. 
 
-1. **Acknowledge** what the user told you
-2. **Share the prediction** — tell them their predicted career profile and why it fits their specific skills
-3. **Recommend skills** — CRITICALLY evaluate the ML-recommended skills list. Only recommend skills that are DIRECTLY RELEVANT to the predicted career profile ({predicted_profile}). If a recommended skill seems irrelevant to this career path, SKIP IT and suggest a more relevant alternative instead. Pick the top 3-5 most impactful skills and explain WHY each matters for THIS specific career.
-4. **Suggest career paths** — 2-3 specific job roles they should target based on their skills
-5. **Give a quick action plan** — 3 concrete next steps they can take this week
+- **If the message is a greeting or casual talk (thank you, hello, etc.)**: Respond naturally as a friendly advisor. Don't force a career prediction or recommendation if it feels out of place. Be welcoming.
+- **If the user provides skills or asks for an analysis**: 
+    1. **Acknowledge** what they told you.
+    2. **Share the prediction** — explain their predicted career profile ({predicted_profile}) and why it fits.
+    3. **Recommend skills** — Critically evaluate the recommendation list ({skills_to_learn}). Suggest 3-5 most impactful ones.
+    4. **Suggest career paths** — 2-3 specific roles.
+    5. **Give a quick action plan** — 3 next steps.
+
+IMPORTANT: If `predicted_profile` is provided, stay focused on that path. If the user is just saying thanks or asking a follow-up that doesn't need data, just be a helpful human-like advisor.
 
 IMPORTANT: Do NOT recommend skills that are irrelevant to the predicted career profile. For example, don't suggest machine learning frameworks to a frontend developer, or frontend frameworks to a data scientist. Stay focused and relevant to their career path.
 

@@ -42,24 +42,29 @@ def chat(request: ChatRequest):
         extracted = extract_profile_from_message(request.message)
 
         skills = extracted.get("skills", "general")
+        is_conv = extracted.get("is_conversational", False)
 
-        # Step 2: Run ML predictions
-        profile_features = {
-            "total_skills": skills,
-            "years_of_experience": extracted.get("years_of_experience", 0),
-            "education_degree": extracted.get("education", ""),
-            "education_institution": "",
-            "certifications": extracted.get("certifications", ""),
-            "city": "",
-            "state": "",
-        }
+        predicted_profile = "General"
+        recommended = []
 
-        predicted_profile = predict_profile_type(profile_features)
-        recommended = (
-            recommend_skills(skills, predicted_profile=predicted_profile)
-            if skills != "general"
-            else []
-        )
+        # Step 2: Run ML predictions only if NOT a conversational/junk message
+        if not is_conv:
+            profile_features = {
+                "total_skills": skills,
+                "years_of_experience": extracted.get("years_of_experience", 0),
+                "education_degree": extracted.get("education", ""),
+                "education_institution": "",
+                "certifications": extracted.get("certifications", ""),
+                "city": "",
+                "state": "",
+            }
+
+            predicted_profile = predict_profile_type(profile_features)
+            recommended = (
+                recommend_skills(skills, predicted_profile=predicted_profile)
+                if skills != "general"
+                else []
+            )
 
         # Step 3: Generate comprehensive AI response
         ai_response = generate_chat_response(
