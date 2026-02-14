@@ -1,0 +1,17 @@
+# ============================================================
+# Render Deployment Blueprint
+# ============================================================
+# Deploy: Connect this repo to Render, it auto-detects this file.
+# Set GROQ_API_KEY as an environment variable in Render dashboard.
+# ============================================================
+
+services:
+  - type: web
+    name: career-intelligence
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && cd frontend && npm install && npm run build
+    startCommand: uvicorn app.api.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false

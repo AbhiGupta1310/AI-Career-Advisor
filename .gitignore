@@ -1,0 +1,71 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# =========================
+# Virtual Environments
+# =========================
+.venv/
+venv/
+env/
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Environment & Secrets
+# =========================
+.env
+
+# =========================
+# Data Files (too large for git)
+# =========================
+data/raw/
+data/embeddings/
+
+# Large processed files (keep combined.csv for deployment)
+data/processed/*.csv
+!data/processed/combined.csv
+
+# =========================
+# Model Artifacts
+# =========================
+# Keep data/models/ tracked — needed for deployment
+# Only ignore large unused artifacts
+*.egg
+*.egg-info/
+
+# =========================
+# Misc
+# =========================
+*.pdf
+anaconda_projects/
+
+node_modules/
+frontend/node_modules/
+
