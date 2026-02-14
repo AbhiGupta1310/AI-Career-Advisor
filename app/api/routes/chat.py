@@ -55,7 +55,11 @@ def chat(request: ChatRequest):
         }
 
         predicted_profile = predict_profile_type(profile_features)
-        recommended = recommend_skills(skills, predicted_profile=predicted_profile) if skills != "general" else []
+        recommended = (
+            recommend_skills(skills, predicted_profile=predicted_profile)
+            if skills != "general"
+            else []
+        )
 
         # Step 3: Generate comprehensive AI response
         ai_response = generate_chat_response(

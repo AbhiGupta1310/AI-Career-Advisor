@@ -2,7 +2,8 @@
 Tests for core model logic.
 """
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
 import numpy as np
 
 

@@ -12,9 +12,7 @@ from app.core.config import settings
 def _get_groq_client() -> Groq:
     """Get a Groq client instance."""
     if not settings.groq_api_key:
-        raise ValueError(
-            "GROQ_API_KEY is not set. Get a free key at https://console.groq.com"
-        )
+        raise ValueError("GROQ_API_KEY is not set. Get a free key at https://console.groq.com")
     return Groq(api_key=settings.groq_api_key)
 
 
@@ -93,9 +91,9 @@ def generate_chat_response(
 ## ML Analysis Results (from our trained models)
 - **Extracted Skills**: {user_skills}
 - **AI-Predicted Career Profile**: {predicted_profile}
-- **Years of Experience**: {experience or 'Not specified'}
-- **Education**: {education or 'Not specified'}
-- **Certifications**: {certs or 'None'}
+- **Years of Experience**: {experience or "Not specified"}
+- **Education**: {education or "Not specified"}
+- **Certifications**: {certs or "None"}
 - **Recommended Skills to Learn**: {skills_to_learn}
 
 ## Your Task
@@ -148,9 +146,9 @@ def generate_career_advice(
 ## Profile Analysis
 - **Current Skills**: {user_skills}
 - **Predicted Career Profile**: {predicted_profile}
-- **Years of Experience**: {years_of_experience or 'Not specified'}
-- **Education**: {education or 'Not specified'}
-- **Certifications**: {certifications or 'None'}
+- **Years of Experience**: {years_of_experience or "Not specified"}
+- **Education**: {education or "Not specified"}
+- **Certifications**: {certifications or "None"}
 - **Recommended Skills to Learn**: {skills_to_learn}
 
 ## Your Task

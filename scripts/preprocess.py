@@ -6,11 +6,11 @@ Usage:
     python -m scripts.preprocess --json-dir data/raw --output-dir data/processed
 """
 
-import json
-import csv
-import re
-import os
 import argparse
+import csv
+import json
+import os
+import re
 from datetime import datetime
 
 
@@ -53,9 +53,7 @@ def calculate_years_of_experience(experience_list: list) -> float | str:
         else:
             end_date = datetime.today()
 
-        diff = (end_date.year - start_date.year) * 12 + (
-            end_date.month - start_date.month
-        )
+        diff = (end_date.year - start_date.year) * 12 + (end_date.month - start_date.month)
         total_months += max(diff, 0)
 
     return round(total_months / 12, 1) if total_months > 0 else ""
@@ -104,9 +102,7 @@ def process_json_file(json_path: str, output_dir: str) -> str:
             years_exp = calculate_years_of_experience(element.get("experience", []))
 
             # Skills
-            skills = [
-                s.get("name") for s in element.get("skills", []) if s.get("name")
-            ]
+            skills = [s.get("name") for s in element.get("skills", []) if s.get("name")]
             skills_str = ", ".join(skills)
 
             # Education
@@ -119,9 +115,7 @@ def process_json_file(json_path: str, output_dir: str) -> str:
 
             # Certifications
             certifications = [
-                c.get("title")
-                for c in element.get("certifications", [])
-                if c.get("title")
+                c.get("title") for c in element.get("certifications", []) if c.get("title")
             ]
             certs_str = ", ".join(certifications)
 

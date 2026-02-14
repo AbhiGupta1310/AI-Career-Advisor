@@ -3,7 +3,8 @@ Tests for API endpoints.
 Uses FastAPI TestClient for integration testing.
 """
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+
 from fastapi.testclient import TestClient
 
 from app.api.main import app

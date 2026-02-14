@@ -4,10 +4,11 @@ Career Intelligence API with ML predictions and AI-powered chat advisor.
 """
 
 from pathlib import Path
+
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import chat
 

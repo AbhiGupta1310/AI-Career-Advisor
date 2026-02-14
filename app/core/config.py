@@ -5,8 +5,8 @@ Loads configuration from environment variables and .env file.
 
 import os
 from pathlib import Path
-from pydantic_settings import BaseSettings
 
+from pydantic_settings import BaseSettings
 
 # Project root directory (2 levels up from this file: app/core/config.py → project root)
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -53,8 +53,6 @@ class Settings(BaseSettings):
     @property
     def combined_csv_path(self) -> str:
         return os.path.join(self.processed_data_dir, "combined.csv")
-
-
 
 
 settings = Settings()

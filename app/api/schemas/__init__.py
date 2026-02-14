@@ -1,8 +1,8 @@
 from .profile import (
-    SkillsSchema,
-    ProfileSchema,
     ProfilePrediction,
+    ProfileSchema,
     SkillRecommendationResponse,
+    SkillsSchema,
 )
 
 __all__ = [
