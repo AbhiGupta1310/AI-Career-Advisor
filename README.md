@@ -105,4 +105,67 @@ AI-Career-Advisor/
 
 ---
 
+## ⚙️ How It Works — End-to-End Workflow
+
+```mermaid
+graph TD
+    subgraph DataPrep [Data Preparation Phase]
+        Raw[Raw LinkedIn JSON<br>data/raw/] -->|scripts/preprocess.py| Processed[combined.csv<br>data/processed/]
+    end
+
+    subgraph ModelTraining [Model Training Phase]
+        Processed -->|notebooks/main.ipynb| Artifacts[Trained Artifacts]
+        Artifacts --- XGB[XGBoost Classifier]
+        Artifacts --- TFIDF[TF-IDF Vectorizer]
+        Artifacts --- LabelEnc[Label Encoder]
+        Artifacts --- SkillRec[Skill Recommender]
+    end
+
+    subgraph LiveWorkflow [Live Application Workflow]
+        User([User]) <-->|Interacts| UI[React Chat UI]
+        UI -->|POST /chat| API[FastAPI Backend]
+
+        API -->|1. Extract Skills| LLM1[Groq LLM]
+        LLM1 -->|2. Predict Profile| XGBModel[XGBoost Predictor]
+        XGBModel -->|3. Recommend Skills| Recommender[TF-IDF Recommender]
+        Recommender -->|4. Generate Advice| LLM2[Groq Llama 3.3]
+
+        LLM2 -->|Response| API
+        API -->|JSON| UI
+    end
+
+    DataPrep --> ModelTraining
+    ModelTraining --> LiveWorkflow
+```
+
+### Chat Pipeline (Step-by-Step)
+
+1. **User sends a message** → React frontend `POST`s to `/chat`
+2. **NLP Extraction** → Groq LLM parses skills, experience, education, certifications from natural language
+3. **Career Prediction** → XGBoost pipeline predicts one of 12 career profiles (ML Engineer, Data Scientist, Frontend Dev, etc.)
+4. **Skill Recommendation** → TF-IDF similarity finds profiles like yours, filters recommendations by predicted career track
+5. **AI Response** → Groq Llama 3.3 70B combines ML insights with conversational career advice
+6. **Typewriter render** → React renders the response with streaming effect + markdown formatting
+
+### Development Workflow
+
+```bash
+make install     # Install Python + Node.js dependencies
+make dev         # Start backend (port 8000) + frontend (port 5173) concurrently
+make test        # Run pytest suite
+make lint        # Ruff linting on app/, scripts/, tests/
+make format      # Auto-format code with Ruff
+make build       # Production build (React → frontend/dist/)
+make clean       # Remove __pycache__, .pyc, .DS_Store, dist/
+```
+
+### Data Pipeline
+
+```bash
+# Preprocess raw LinkedIn JSON profiles into structured CSV
+python -m scripts.preprocess --json-dir data/raw --output-dir data/processed
+```
+
+---
+
 **Built with ❤️ by Abhi Gupta**
