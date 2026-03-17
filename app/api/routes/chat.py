@@ -16,6 +16,7 @@ class ChatRequest(BaseModel):
     """Chat message from the user."""
 
     message: str = Field(..., description="User's career question or profile description")
+    history: list[dict[str, str]] = Field(default_factory=list, description="Previous chat messages")
 
 
 class ChatResponse(BaseModel):
@@ -32,10 +33,10 @@ def chat(request: ChatRequest):
     Chat-based career advice.
 
     Flow:
-    1. Groq extracts skills/experience from natural language
+    1. AI extracts skills/experience from natural language
     2. XGBoost predicts career profile
     3. TF-IDF recommends skills
-    4. Groq generates comprehensive conversational response
+    4. AI generates comprehensive conversational response
     """
     try:
         # Step 1: Extract structured info from the user's message
@@ -66,12 +67,12 @@ def chat(request: ChatRequest):
                 else []
             )
 
-        # Step 3: Generate comprehensive AI response
         ai_response = generate_chat_response(
             user_message=request.message,
             predicted_profile=predicted_profile,
             recommended_skills=recommended,
             extracted_info=extracted,
+            history=request.history,
         )
 
         return ChatResponse(

@@ -1,31 +1,34 @@
 """
-Groq-powered AI Career Advisor.
+OpenRouter-powered AI Career Advisor.
 Handles both structured career advice and chat-based natural language queries.
-Uses Llama 3.3 70B via Groq's free API.
+Uses ChatGPT Nano (via OpenRouter) for intelligent career guidance.
 """
 
-from groq import Groq
+from openai import OpenAI
 
 from app.core.config import settings
 
 
-def _get_groq_client() -> Groq:
-    """Get a Groq client instance."""
-    if not settings.groq_api_key:
-        raise ValueError("GROQ_API_KEY is not set. Get a free key at https://console.groq.com")
-    return Groq(api_key=settings.groq_api_key)
+def _get_llm_client() -> OpenAI:
+    """Get an OpenAI client configured for OpenRouter."""
+    if not settings.openrouter_api_key:
+        raise ValueError("OPENROUTER_API_KEY is not set. Get a key at https://openrouter.ai/keys")
+    return OpenAI(
+        base_url=settings.openrouter_base_url,
+        api_key=settings.openrouter_api_key,
+    )
 
 
 def extract_profile_from_message(message: str) -> dict:
     """
-    Use Groq to extract structured career profile info from a natural language message.
+    Use LLM to extract structured career profile info from a natural language message.
 
     Returns a dict with: skills, years_of_experience, education, certifications
     """
-    client = _get_groq_client()
+    client = _get_llm_client()
 
     response = client.chat.completions.create(
-        model=settings.groq_model,
+        model=settings.openrouter_model,
         messages=[
             {
                 "role": "system",
@@ -71,13 +74,14 @@ def generate_chat_response(
     predicted_profile: str | None = None,
     recommended_skills: list[str] | None = None,
     extracted_info: dict | None = None,
+    history: list[dict[str, str]] | None = None,
 ) -> str:
     """
     Generate a comprehensive, conversational career advice response.
 
     Combines ML predictions with Groq LLM to create a rich, helpful response.
     """
-    client = _get_groq_client()
+    client = _get_llm_client()
 
     skills_to_learn = ", ".join(recommended_skills) if recommended_skills else "N/A"
     extracted_info = extracted_info or {}
@@ -123,15 +127,26 @@ IMPORTANT: Do NOT recommend skills that are irrelevant to the predicted career p
 
 Keep it conversational, encouraging, and specific. Use markdown formatting (bold, lists, headers) for readability. Keep the total response under 350 words. Don't be generic — reference THEIR specific skills and situation."""
 
+    messages = [
+        {
+            "role": "system",
+            "content": "You are Career Intelligence AI, a friendly expert career advisor. You combine hard data (ML predictions) with practical wisdom. Be warm, specific, and actionable. Always use markdown formatting.",
+        }
+    ]
+
+    # Add conversation history (limited to avoid token overflow)
+    if history:
+        # OpenRouter/OpenAI expect 'assistant' role instead of 'ai' used in frontend
+        for msg in history[-10:]:  # Last 10 messages for context
+            role = "assistant" if msg["role"] == "ai" else msg["role"]
+            messages.append({"role": role, "content": msg["content"]})
+
+    # Add current prompt
+    messages.append({"role": "user", "content": prompt})
+
     response = client.chat.completions.create(
-        model=settings.groq_model,
-        messages=[
-            {
-                "role": "system",
-                "content": "You are Career Intelligence AI, a friendly expert career advisor. You combine hard data (ML predictions) with practical wisdom. Be warm, specific, and actionable. Always use markdown formatting.",
-            },
-            {"role": "user", "content": prompt},
-        ],
+        model=settings.openrouter_model,
+        messages=messages,
         temperature=0.7,
         max_tokens=1024,
     )
@@ -151,7 +166,7 @@ def generate_career_advice(
     Generate personalized career advice (structured endpoint version).
     Kept for backward compatibility with /career_advice endpoint.
     """
-    client = _get_groq_client()
+    client = _get_llm_client()
 
     skills_to_learn = ", ".join(recommended_skills) if recommended_skills else "N/A"
 
@@ -183,7 +198,7 @@ A prioritized list of 3-5 skills they should learn next from the recommended ski
 Keep it concise, energetic, and actionable. Use markdown formatting. Do NOT use more than 400 words total."""
 
     response = client.chat.completions.create(
-        model=settings.groq_model,
+        model=settings.openrouter_model,
         messages=[
             {
                 "role": "system",

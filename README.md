@@ -1,6 +1,6 @@
 # AI Career Advisor
 
-AI-powered career prediction, skill recommendation, and personalized guidance system. Uses XGBoost classification, TF-IDF similarity matching, and Groq Llama 3.3 70B to deliver action-oriented career advice in a modern, interactive chat interface.
+AI-powered career prediction, skill recommendation, and personalized guidance system. Uses XGBoost classification, TF-IDF similarity matching, and OpenRouter (ChatGPT Nano) to deliver action-oriented career advice in a modern, interactive chat interface.
 
 **[Live Demo →](https://career-intelligence.onrender.com/)**
 
@@ -10,7 +10,7 @@ AI-powered career prediction, skill recommendation, and personalized guidance sy
 
 - **Career Profile Prediction** — XGBoost classifier predicts your ideal career path from your skills
 - **Smart Skill Recommendations** — Profile-aware filtering finds the most high-impact skills for your career
-- **AI Career Chat** — Groq Llama 3.3 powers a conversational advisor that understands your context
+- **AI Career Chat** — ChatGPT Nano (via OpenRouter) powers a conversational advisor that understands your context
 - **Modern React UI** — Beautiful, responsive chat interface with 3D avatar and "Matrix" aesthetics
 - **Robust Backend** — FastAPI server handling predictions, recommendations, and chat logic
 - **Cloud-Ready** — Render deployment blueprint included
@@ -27,7 +27,7 @@ ML Engineer · Data Scientist · Data Analyst · Business Analyst · BI Develope
 
 - Python 3.10+
 - Node.js 16+
-- Free Groq API key from [console.groq.com](https://console.groq.com)
+- Free OpenRouter API key from [openrouter.ai](https://openrouter.ai/keys)
 
 ### Install & Run
 
@@ -39,7 +39,7 @@ cd AI-Career-Advisor
 # Backend Setup
 make install       # Install Python dependencies
 cp .env.example .env
-# Edit .env and add your GROQ_API_KEY
+# Edit .env and add your OPENROUTER_API_KEY
 
 # Frontend Setup
 cd frontend
@@ -55,7 +55,7 @@ make dev           # Starts both Backend (port 8000) and Frontend (port 5173)
 1. Push this repo to GitHub
 2. Go to [render.com](https://render.com) → New → Blueprint
 3. Connect your repo (it auto-detects `render.yaml`)
-4. Add `GROQ_API_KEY` as an environment variable
+4. Add `OPENROUTER_API_KEY` as an environment variable
 5. Deploy!
 
 ---
@@ -71,7 +71,7 @@ AI-Career-Advisor/
 │   ├── core/                   # Business logic
 │   │   ├── config.py           # Settings (env-driven)
 │   │   ├── model.py            # ML prediction & recommendation logic
-│   │   └── advisor.py          # Groq LLM integration
+│   │   └── advisor.py          # LLM integration (OpenRouter)
 │   └── frontend/               # (Legacy Streamlit code, pending removal)
 ├── frontend/                   # Modern React Application
 │   ├── src/
@@ -93,15 +93,15 @@ AI-Career-Advisor/
 
 ## 🛠️ Tech Stack
 
-| Layer          | Technology                 |
-| -------------- | -------------------------- |
-| **API**        | FastAPI + Uvicorn          |
-| **Frontend**   | React + Vite + Three.js    |
-| **ML Models**  | XGBoost, scikit-learn      |
-| **AI Advisor** | Groq Llama 3.3 70B (free)  |
-| **Config**     | pydantic-settings + `.env` |
-| **CI/CD**      | GitHub Actions             |
-| **Deploy**     | Render                     |
+| Layer          | Technology                    |
+| -------------- | ----------------------------- |
+| **API**        | FastAPI + Uvicorn             |
+| **Frontend**   | React + Vite + Three.js       |
+| **ML Models**  | XGBoost, scikit-learn         |
+| **AI Advisor** | ChatGPT Nano (via OpenRouter) |
+| **Config**     | pydantic-settings + `.env`    |
+| **CI/CD**      | GitHub Actions                |
+| **Deploy**     | Render                        |
 
 ---
 
@@ -125,10 +125,10 @@ graph TD
         User([User]) <-->|Interacts| UI[React Chat UI]
         UI -->|POST /chat| API[FastAPI Backend]
 
-        API -->|1. Extract Skills| LLM1[Groq LLM]
+        API -->|1. Extract Skills| LLM1[OpenRouter LLM]
         LLM1 -->|2. Predict Profile| XGBModel[XGBoost Predictor]
         XGBModel -->|3. Recommend Skills| Recommender[TF-IDF Recommender]
-        Recommender -->|4. Generate Advice| LLM2[Groq Llama 3.3]
+        Recommender -->|4. Generate Advice| LLM2[ChatGPT Nano]
 
         LLM2 -->|Response| API
         API -->|JSON| UI
@@ -141,10 +141,10 @@ graph TD
 ### Chat Pipeline (Step-by-Step)
 
 1. **User sends a message** → React frontend `POST`s to `/chat`
-2. **NLP Extraction** → Groq LLM parses skills, experience, education, certifications from natural language
+2. **NLP Extraction** → OpenRouter LLM parses skills, experience, education, certifications from natural language
 3. **Career Prediction** → XGBoost pipeline predicts one of 12 career profiles (ML Engineer, Data Scientist, Frontend Dev, etc.)
 4. **Skill Recommendation** → TF-IDF similarity finds profiles like yours, filters recommendations by predicted career track
-5. **AI Response** → Groq Llama 3.3 70B combines ML insights with conversational career advice
+5. **AI Response** → ChatGPT Nano combines ML insights with conversational career advice
 6. **Typewriter render** → React renders the response with streaming effect + markdown formatting
 
 ### Development Workflow

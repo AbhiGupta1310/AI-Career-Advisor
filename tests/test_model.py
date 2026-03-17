@@ -11,7 +11,7 @@ def test_config_loads():
     """Test that the config module loads without errors."""
     from app.core.config import settings
 
-    assert settings.groq_model == "llama-3.3-70b-versatile"
+    assert settings.openrouter_model == "openai/gpt-4o-mini"
     assert settings.api_port == 8000
 
 

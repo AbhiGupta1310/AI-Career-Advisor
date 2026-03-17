@@ -71,7 +71,10 @@ export default function App() {
       const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({
+          message: text,
+          history: messages,
+        }),
       });
       const data = await res.json();
 
