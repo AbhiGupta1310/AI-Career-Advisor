@@ -1,21 +1,7 @@
 # ============================================================
-# Nixpacks Build Config for Railway
-# Handles both Python (FastAPI) + Node (React/Vite) build steps
+# Nixpacks Config for Railway
+# Only sets up Nix packages — build/start commands in railway.json
 # ============================================================
 
 [phases.setup]
 nixPkgs = ["nodejs_20", "python311"]
-
-[phases.install]
-cmds = [
-  "pip install -r requirements.txt",
-  "cd frontend && npm install"
-]
-
-[phases.build]
-cmds = [
-  "cd frontend && npm run build"
-]
-
-[start]
-cmd = "uvicorn app.api.main:app --host 0.0.0.0 --port $PORT"
