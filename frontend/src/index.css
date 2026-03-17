@@ -304,6 +304,21 @@ body {
   mask-image: linear-gradient(to bottom, transparent, black 10%);
 }
 
+/* Custom scrollbar for chat */
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(168, 85, 247, 0.3);
+  border-radius: 3px;
+}
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 85, 247, 0.5);
+}
+
 /* Chat Input Wrapper - always visible at bottom */
 .chat-input-wrapper {
   position: absolute;
@@ -371,9 +386,21 @@ body {
   transition: all 0.2s ease;
 }
 
-.send-btn:hover {
+.send-btn:hover:not(:disabled) {
   background: var(--neon-pink);
   transform: scale(1.05);
+}
+
+.send-btn-disabled,
+.send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.chat-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Chat Bubbles */
@@ -462,18 +489,28 @@ body {
    Responsive
    =================================================== */
 @media (max-width: 900px) {
-  .main-content {
-    flex-direction: column;
+  .left-panel {
     padding: 80px 20px;
     text-align: center;
+    flex-direction: column;
+  }
+  .chat-mode .left-panel {
+    display: none;
+  }
+  .right-panel.active {
+    width: 100%;
+    padding: 80px 16px 100px 16px;
+  }
+  .chat-input-wrapper,
+  .chat-input-wrapper.chat-active {
+    left: 16px;
+    right: 16px;
+    width: auto;
+    transform: none;
   }
   .hero-text {
     padding: 0;
     margin-bottom: 40px;
-  }
-  .chat-layer {
-    width: 100%;
-    padding: 20px;
   }
   .navbar {
     padding: 20px;

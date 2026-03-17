@@ -52,14 +52,25 @@ Return ONLY the JSON. No markdown, no explanation.""",
     )
 
     import json
+    import re
 
     try:
         raw = response.choices[0].message.content.strip()
-        # Handle potential markdown wrapping
+        # Handle markdown code block wrapping (```json ... ``` or ``` ... ```)
         if raw.startswith("```"):
-            raw = raw.split("\n", 1)[1].rsplit("```", 1)[0].strip()
-        return json.loads(raw)
-    except (json.JSONDecodeError, IndexError):
+            # Remove opening ``` or ```json line
+            raw = raw.split("\n", 1)[1] if "\n" in raw else raw[3:]
+            raw = raw.rsplit("```", 1)[0].strip()
+
+        try:
+            return json.loads(raw)
+        except json.JSONDecodeError:
+            # Fallback: try to find a JSON object anywhere in the text
+            match = re.search(r"\{[^{}]*\}", raw, re.DOTALL)
+            if match:
+                return json.loads(match.group())
+            raise
+    except (json.JSONDecodeError, IndexError, AttributeError):
         return {
             "skills": "general",
             "years_of_experience": 0,

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { FaGithub, FaLinkedinIn, FaMedium, FaGlobe } from "react-icons/fa";
 import Avatar3D from "./Avatar3D";
@@ -10,6 +10,12 @@ function TypewriterText({ text, speed = 12, onComplete }) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
   const indexRef = useRef(0);
+  const onCompleteRef = useRef(onComplete);
+
+  // Keep callback ref in sync without triggering re-render
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
 
   useEffect(() => {
     if (!text) return;
@@ -25,7 +31,7 @@ function TypewriterText({ text, speed = 12, onComplete }) {
       if (indexRef.current >= text.length) {
         clearInterval(interval);
         setDone(true);
-        if (onComplete) onComplete();
+        if (onCompleteRef.current) onCompleteRef.current();
       }
     }, speed);
 
@@ -48,6 +54,7 @@ export default function App() {
   const [streamingIdx, setStreamingIdx] = useState(-1);
 
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -57,26 +64,54 @@ export default function App() {
     scrollToBottom();
   }, [messages, streamingIdx]);
 
-  const sendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+  // Re-focus input after AI response finishes loading
+  useEffect(() => {
+    if (!isLoading && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isLoading]);
+
+  const sendMessage = useCallback(async () => {
+    const trimmed = input.trim();
+    if (!trimmed || isLoading) return;
 
     setChatStarted(true);
-    const text = input;
     setInput("");
 
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    // Build the updated message list including the new user message
+    const userMsg = { role: "user", content: trimmed };
+    const updatedMessages = [...messages, userMsg];
+
+    setMessages(updatedMessages);
     setIsLoading(true);
 
     try {
+      // Only send role + content in history (strip extra fields like predicted, skills)
+      const cleanHistory = updatedMessages.map(({ role, content }) => ({
+        role,
+        content,
+      }));
+
       const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: text,
-          history: messages,
+          message: trimmed,
+          history: cleanHistory,
         }),
       });
+
       const data = await res.json();
+
+      // Check for server error responses (500, 503, 422, etc.)
+      if (!res.ok) {
+        // Pydantic 422 errors return detail as an array of objects
+        let errorDetail = data.detail;
+        if (Array.isArray(errorDetail)) {
+          errorDetail = errorDetail.map((e) => e.msg || JSON.stringify(e)).join("; ");
+        }
+        throw new Error(errorDetail || `Server error (${res.status})`);
+      }
 
       setMessages((prev) => {
         setStreamingIdx(prev.length);
@@ -91,15 +126,27 @@ export default function App() {
         ];
       });
     } catch (err) {
+      const errorMsg =
+        err.message && err.message !== "Failed to fetch"
+          ? err.message
+          : "Connection error. Please check if the server is running and try again.";
+
       setMessages((prev) => {
         setStreamingIdx(prev.length);
         return [
           ...prev,
-          { role: "ai", content: "Connection error. Please try again." },
+          { role: "ai", content: `⚠️ ${errorMsg}` },
         ];
       });
     } finally {
       setIsLoading(false);
+    }
+  }, [input, isLoading, messages]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
     }
   };
 
@@ -199,14 +246,24 @@ export default function App() {
       <div className={`chat-input-wrapper ${chatStarted ? "chat-active" : ""}`}>
         <div className="chat-input-container">
           <input
+            ref={inputRef}
             type="text"
             className="chat-input"
-            placeholder="Tell me about your skills..."
+            placeholder={
+              isLoading
+                ? "Waiting for response..."
+                : "Tell me about your skills..."
+            }
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            onKeyDown={handleKeyDown}
+            disabled={isLoading}
           />
-          <button className="send-btn" onClick={sendMessage}>
+          <button
+            className={`send-btn ${isLoading ? "send-btn-disabled" : ""}`}
+            onClick={sendMessage}
+            disabled={isLoading}
+          >
             ➤
           </button>
         </div>

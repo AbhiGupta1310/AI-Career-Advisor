@@ -4,7 +4,7 @@ Natural language career advice: user sends a message, gets ML predictions + AI g
 """
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from app.core.advisor import extract_profile_from_message, generate_chat_response
 from app.core.model import predict_profile_type, recommend_skills
@@ -15,7 +15,19 @@ router = APIRouter(tags=["Chat"])
 class ChatRequest(BaseModel):
     """Chat message from the user."""
 
-    message: str = Field(..., description="User's career question or profile description")
+    message: str = Field(
+        ...,
+        min_length=1,
+        description="User's career question or profile description",
+    )
+
+    @field_validator("message", mode="before")
+    @classmethod
+    def strip_message(cls, v: str) -> str:
+        if isinstance(v, str):
+            return v.strip()
+        return v
+
     history: list[dict[str, str]] = Field(default_factory=list, description="Previous chat messages")
 
 

@@ -21,55 +21,60 @@ def test_health_check():
     assert "running" in data["message"].lower()
 
 
-@patch("app.api.routes.predict.predict_profile_type")
-def test_predict_profile_type(mock_predict):
-    """Test profile prediction endpoint with mocked model."""
-    mock_predict.return_value = "Data Scientist"
-
-    payload = {
-        "years_of_experience": 5,
-        "education_degree": "Master's",
-        "education_institution": "MIT",
-        "total_skills": "Python, Machine Learning, SQL",
-        "certifications": "AWS",
-        "city": "Boston",
-        "state": "MA",
+@patch("app.api.routes.chat.generate_chat_response")
+@patch("app.api.routes.chat.recommend_skills")
+@patch("app.api.routes.chat.predict_profile_type")
+@patch("app.api.routes.chat.extract_profile_from_message")
+def test_chat_with_skills(mock_extract, mock_predict, mock_recommend, mock_generate):
+    """Test chat endpoint with a skills-based message."""
+    mock_extract.return_value = {
+        "skills": "Python, SQL",
+        "years_of_experience": 3,
+        "education": "Bachelor's",
+        "certifications": "",
+        "is_conversational": False,
     }
+    mock_predict.return_value = "Data_Science"
+    mock_recommend.return_value = ["Pandas", "NumPy", "Scikit-Learn"]
+    mock_generate.return_value = "Great skills! You'd fit well in Data Science."
 
-    response = client.post("/predict_profile_type", json=payload)
+    response = client.post("/chat", json={"message": "I know Python and SQL"})
     assert response.status_code == 200
     data = response.json()
-    assert data["output_label"] == "Data Scientist"
-    mock_predict.assert_called_once()
-
-
-@patch("app.api.routes.recommend.recommend_skills")
-def test_recommend_skills(mock_recommend):
-    """Test skill recommendation endpoint with mocked model."""
-    mock_recommend.return_value = ["Docker", "Kubernetes", "Terraform"]
-
-    payload = {"total_skills": "Python, AWS, Linux"}
-
-    response = client.post("/recommend_skills", json=payload)
-    assert response.status_code == 200
-    data = response.json()
+    assert data["predicted_profile"] == "Data_Science"
     assert len(data["recommended_skills"]) == 3
-    assert "Docker" in data["recommended_skills"]
-    mock_recommend.assert_called_once_with("Python, AWS, Linux")
+    assert "Great skills" in data["response"]
+    mock_extract.assert_called_once()
 
 
-def test_recommend_skills_empty_input():
-    """Test that recommendation endpoint rejects empty input."""
-    response = client.post("/recommend_skills", json={})
-    assert response.status_code == 422  # Validation error — total_skills is required
+@patch("app.api.routes.chat.generate_chat_response")
+@patch("app.api.routes.chat.extract_profile_from_message")
+def test_chat_conversational(mock_extract, mock_generate):
+    """Test chat endpoint with a conversational message (no ML prediction)."""
+    mock_extract.return_value = {
+        "skills": "general",
+        "years_of_experience": 0,
+        "education": "",
+        "certifications": "",
+        "is_conversational": True,
+    }
+    mock_generate.return_value = "Hello! How can I help you today?"
 
-
-@patch("app.api.routes.predict.predict_profile_type")
-def test_predict_with_minimal_input(mock_predict):
-    """Test prediction works with only required fields populated."""
-    mock_predict.return_value = "Frontend Developer"
-
-    payload = {"total_skills": "React, JavaScript"}
-    response = client.post("/predict_profile_type", json=payload)
+    response = client.post("/chat", json={"message": "Hi there!"})
     assert response.status_code == 200
-    assert response.json()["output_label"] == "Frontend Developer"
+    data = response.json()
+    assert data["predicted_profile"] == "General"
+    assert data["recommended_skills"] == []
+    assert "Hello" in data["response"]
+
+
+def test_chat_empty_message():
+    """Test that chat endpoint rejects empty messages."""
+    response = client.post("/chat", json={"message": ""})
+    assert response.status_code == 422  # Validation error — min_length=1
+
+
+def test_chat_whitespace_message():
+    """Test that chat endpoint rejects whitespace-only messages."""
+    response = client.post("/chat", json={"message": "   "})
+    assert response.status_code == 422  # Validation error — strip_whitespace + min_length
