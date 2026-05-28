@@ -21,7 +21,7 @@ function Robot() {
     return () => window.removeEventListener("mousemove", onMouseMove);
   }, []);
 
-  // Re-color model to match website neon vibe
+  // Re-color model to match professional black & white theme
   useEffect(() => {
     scene.traverse((child) => {
       if (child.isMesh && child.material) {
@@ -29,18 +29,18 @@ function Robot() {
         const name = (mat.name || "").toLowerCase();
         const hex = "#" + (mat.color ? mat.color.getHexString() : "000000");
 
-        // Map yellow/gold body parts -> dark metallic purple
+        // Map yellow/gold body parts -> dark metallic grey
         if (
           hex === "c8b43a" ||
           hex === "c8b43b" ||
           name.includes("body") ||
           name.includes("gold")
         ) {
-          mat.color = new THREE.Color("#2d1b69");
-          mat.metalness = 0.6;
-          mat.roughness = 0.3;
+          mat.color = new THREE.Color("#2a2a2a");
+          mat.metalness = 0.8;
+          mat.roughness = 0.2;
         }
-        // Map grey/silver parts -> neon cyan metallic
+        // Map grey/silver parts -> metallic silver
         else if (
           hex === "999999" ||
           hex === "aaaaaa" ||
@@ -49,28 +49,28 @@ function Robot() {
           name.includes("silver") ||
           name.includes("metal")
         ) {
-          mat.color = new THREE.Color("#0e7490");
-          mat.metalness = 0.7;
-          mat.roughness = 0.2;
+          mat.color = new THREE.Color("#888888");
+          mat.metalness = 0.9;
+          mat.roughness = 0.1;
         }
-        // Dark/black parts -> deep purple-black
+        // Dark/black parts -> pure black with slight metallic
         else if (
           hex === "333333" ||
           hex === "222222" ||
           hex === "111111" ||
           hex === "000000"
         ) {
-          mat.color = new THREE.Color("#1a0a2e");
-          mat.metalness = 0.5;
-          mat.roughness = 0.4;
+          mat.color = new THREE.Color("#0a0a0a");
+          mat.metalness = 0.6;
+          mat.roughness = 0.3;
         }
-        // Anything else -> tint it slightly purple
+        // Anything else -> convert to grey scale
         else {
           const currentColor = mat.color.clone();
-          currentColor.lerp(new THREE.Color("#6d28d9"), 0.4);
-          mat.color = currentColor;
-          mat.metalness = Math.min(mat.metalness + 0.2, 1);
-          mat.roughness = Math.max(mat.roughness - 0.1, 0);
+          const gray = (currentColor.r + currentColor.g + currentColor.b) / 3;
+          mat.color = new THREE.Color(gray, gray, gray);
+          mat.metalness = Math.min(mat.metalness + 0.3, 1);
+          mat.roughness = Math.max(mat.roughness - 0.2, 0);
         }
 
         mat.needsUpdate = true;
@@ -124,7 +124,7 @@ function LoadingFallback() {
   return (
     <mesh ref={meshRef}>
       <torusGeometry args={[0.5, 0.1, 16, 32]} />
-      <meshBasicMaterial color="#a855f7" wireframe />
+      <meshBasicMaterial color="#ffffff" wireframe />
     </mesh>
   );
 }
@@ -135,27 +135,27 @@ export default function Avatar3D() {
       camera={{ position: [0, 0.5, 5], fov: 45 }}
       style={{ height: "600px", width: "100%", pointerEvents: "none" }}
     >
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[5, 8, 5]} intensity={1.5} color="white" />
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[5, 8, 5]} intensity={1.2} color="white" />
       <spotLight
         position={[-3, 5, 5]}
         angle={0.4}
         penumbra={1}
-        intensity={1}
-        color="#d8b4fe"
+        intensity={0.8}
+        color="white"
       />
-      {/* Purple rim light */}
-      <pointLight position={[0, 2, -3]} intensity={2} color="#a855f7" />
-      {/* Cyan accent */}
-      <pointLight position={[-3, -1, 3]} intensity={0.8} color="#06b6d4" />
-      {/* Pink highlight */}
-      <pointLight position={[3, 0, 2]} intensity={0.6} color="#ec4899" />
+      {/* White rim light */}
+      <pointLight position={[0, 2, -3]} intensity={1.5} color="white" />
+      {/* Soft fill light */}
+      <pointLight position={[-3, -1, 3]} intensity={0.5} color="white" />
+      {/* Highlight */}
+      <pointLight position={[3, 0, 2]} intensity={0.4} color="white" />
 
       <Suspense fallback={<LoadingFallback />}>
         <Robot />
       </Suspense>
 
-      <Environment preset="night" />
+      <Environment preset="studio" />
     </Canvas>
   );
 }

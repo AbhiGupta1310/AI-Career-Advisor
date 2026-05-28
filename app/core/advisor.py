@@ -43,7 +43,7 @@ Return ONLY a valid JSON object with these fields:
 Be thorough in extracting skills — include programming languages, frameworks, tools, methodologies, and soft skills.
 If the user asks a general career question without listing skills, extract what you can and set skills to "general".
 
-Return ONLY the JSON. No markdown, no explanation.""",
+Return ONLY the JSON. No markdown, no explanation. Do not use any emojis.""",
             },
             {"role": "user", "content": message},
         ],
@@ -122,7 +122,7 @@ def generate_chat_response(
 {ml_context}
 
 ## Your Task
-Give a warm, helpful, conversational response. 
+Give a warm, helpful, conversational response. Do not use any emojis.
 
 - **If the message is a greeting or casual talk (thank you, hello, etc.)**: Respond naturally as a friendly advisor. Don't force a career prediction or recommendation if it feels out of place. Be welcoming.
 - **If the user provides skills or asks for an analysis**: 
@@ -136,12 +136,12 @@ IMPORTANT: If `predicted_profile` is provided, stay focused on that path. If the
 
 IMPORTANT: Do NOT recommend skills that are irrelevant to the predicted career profile. For example, don't suggest machine learning frameworks to a frontend developer, or frontend frameworks to a data scientist. Stay focused and relevant to their career path.
 
-Keep it conversational, encouraging, and specific. Use markdown formatting (bold, lists, headers) for readability. Keep the total response under 350 words. Don't be generic — reference THEIR specific skills and situation."""
+Keep it conversational, encouraging, and specific. Use markdown formatting (bold, lists, headers) for readability. Keep the total response under 350 words. Don't be generic — reference THEIR specific skills and situation. No emojis whatsoever."""
 
     messages = [
         {
             "role": "system",
-            "content": "You are Career Intelligence AI, a friendly expert career advisor. You combine hard data (ML predictions) with practical wisdom. Be warm, specific, and actionable. Always use markdown formatting.",
+            "content": "You are Career Intelligence AI, a friendly expert career advisor. You combine hard data (ML predictions) with practical wisdom. Be warm, specific, and actionable. Always use markdown formatting. Never use emojis of any kind in your responses.",
         }
     ]
 
@@ -194,26 +194,26 @@ def generate_career_advice(
 ## Your Task
 Provide a concise, actionable career guidance report with these sections:
 
-### 🎯 Career Analysis
+### Career Analysis
 A brief analysis of where they stand based on their skills and predicted profile.
 
-### 🛤️ Recommended Career Paths
+### Recommended Career Paths
 2-3 specific job roles they should target, with brief reasoning.
 
-### 📚 Learning Roadmap
+### Learning Roadmap
 A prioritized list of 3-5 skills they should learn next from the recommended skills, with why each skill matters.
 
-### 💡 Growth Strategy
+### Growth Strategy
 2-3 practical tips for career advancement in their field.
 
-Keep it concise, energetic, and actionable. Use markdown formatting. Do NOT use more than 400 words total."""
+Keep it concise, energetic, and actionable. Use markdown formatting. Do not use any emojis. Do NOT use more than 400 words total."""
 
     response = client.chat.completions.create(
         model=settings.openrouter_model,
         messages=[
             {
                 "role": "system",
-                "content": "You are a friendly, expert career advisor who gives concise, actionable advice. Always be encouraging and specific.",
+                "content": "You are a friendly, expert career advisor who gives concise, actionable advice. Always be encouraging and specific. Never use emojis of any kind.",
             },
             {"role": "user", "content": prompt},
         ],

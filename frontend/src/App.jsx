@@ -1,21 +1,17 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import { FaGithub, FaLinkedinIn, FaMedium, FaGlobe } from "react-icons/fa";
-import Avatar3D from "./Avatar3D";
 
 const API_URL = import.meta.env.VITE_API_URL || "";
 
-// Typewriter component for streaming effect
-function TypewriterText({ text, speed = 12, onComplete }) {
+// ─── Typewriter ────────────────────────────────────────────────────────────────
+function TypewriterText({ text, speed = 10, onComplete }) {
   const [displayed, setDisplayed] = useState("");
   const [done, setDone] = useState(false);
   const indexRef = useRef(0);
   const onCompleteRef = useRef(onComplete);
 
-  // Keep callback ref in sync without triggering re-render
-  useEffect(() => {
-    onCompleteRef.current = onComplete;
-  }, [onComplete]);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
   useEffect(() => {
     if (!text) return;
@@ -25,13 +21,11 @@ function TypewriterText({ text, speed = 12, onComplete }) {
 
     const interval = setInterval(() => {
       indexRef.current += 1;
-      const next = text.slice(0, indexRef.current);
-      setDisplayed(next);
-
+      setDisplayed(text.slice(0, indexRef.current));
       if (indexRef.current >= text.length) {
         clearInterval(interval);
         setDone(true);
-        if (onCompleteRef.current) onCompleteRef.current();
+        onCompleteRef.current?.();
       }
     }, speed);
 
@@ -46,6 +40,24 @@ function TypewriterText({ text, speed = 12, onComplete }) {
   );
 }
 
+// ─── Background ────────────────────────────────────────────────────────────────
+function Background() {
+  return <div className="bg-canvas" aria-hidden="true" />;
+}
+
+// ─── Send Icon ─────────────────────────────────────────────────────────────────
+function SendIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2.5"
+      strokeLinecap="round" strokeLinejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13" />
+      <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    </svg>
+  );
+}
+
+// ─── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -56,19 +68,12 @@ export default function App() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamingIdx]);
 
-  // Re-focus input after AI response finishes loading
   useEffect(() => {
-    if (!isLoading && inputRef.current) {
-      inputRef.current.focus();
-    }
+    if (!isLoading) inputRef.current?.focus();
   }, [isLoading]);
 
   const sendMessage = useCallback(async () => {
@@ -78,34 +83,23 @@ export default function App() {
     setChatStarted(true);
     setInput("");
 
-    // Build the updated message list including the new user message
     const userMsg = { role: "user", content: trimmed };
     const updatedMessages = [...messages, userMsg];
-
     setMessages(updatedMessages);
     setIsLoading(true);
 
     try {
-      // Only send role + content in history (strip extra fields like predicted, skills)
-      const cleanHistory = updatedMessages.map(({ role, content }) => ({
-        role,
-        content,
-      }));
+      const cleanHistory = updatedMessages.map(({ role, content }) => ({ role, content }));
 
       const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: trimmed,
-          history: cleanHistory,
-        }),
+        body: JSON.stringify({ message: trimmed, history: cleanHistory }),
       });
 
       const data = await res.json();
 
-      // Check for server error responses (500, 503, 422, etc.)
       if (!res.ok) {
-        // Pydantic 422 errors return detail as an array of objects
         let errorDetail = data.detail;
         if (Array.isArray(errorDetail)) {
           errorDetail = errorDetail.map((e) => e.msg || JSON.stringify(e)).join("; ");
@@ -133,10 +127,7 @@ export default function App() {
 
       setMessages((prev) => {
         setStreamingIdx(prev.length);
-        return [
-          ...prev,
-          { role: "ai", content: `⚠️ ${errorMsg}` },
-        ];
+        return [...prev, { role: "ai", content: `⚠️ ${errorMsg}` }];
       });
     } finally {
       setIsLoading(false);
@@ -151,80 +142,126 @@ export default function App() {
   };
 
   return (
-    <div className={`app-container ${chatStarted ? "chat-mode" : ""}`}>
-      <div className="particles"></div>
+    <div className="app-container">
+      <Background />
 
-      {/* Navbar */}
+      {/* ── Navbar ── */}
       <nav className="navbar">
         <div className="logo">
-          CAREER.AI <span className="status-dot"></span>
+          <div className="logo-icon">
+            {/* Simple career/chart icon */}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+              stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+            </svg>
+          </div>
+          Career.AI
+        </div>
+        <div className="status-pill">
+          <span className="status-dot" />
+          Online
         </div>
       </nav>
 
-      {/* Social Sidebar */}
-      <aside className="social-sidebar">
-        <a
-          href="https://github.com/AbhiGupta1310"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+      {/* ── Social Sidebar ── */}
+      <aside className="social-sidebar" aria-label="Social links">
+        <a href="https://github.com/AbhiGupta1310" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="GitHub">
           <FaGithub className="social-icon" />
         </a>
-        <a
-          href="https://www.linkedin.com/in/abhi-gupta-data-science/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://www.linkedin.com/in/abhi-gupta-data-science/" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="LinkedIn">
           <FaLinkedinIn className="social-icon" />
         </a>
-        <a
-          href="https://medium.com/@abhigupta5064"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://medium.com/@abhigupta5064" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Medium">
           <FaMedium className="social-icon" />
         </a>
-        <a
-          href="https://abhi-gupta.me/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href="https://abhi-gupta.me/" target="_blank" rel="noopener noreferrer" className="social-link" aria-label="Website">
           <FaGlobe className="social-icon" />
         </a>
       </aside>
 
-      {/* Left Panel: Hero text + Robot */}
-      <div className="left-panel">
-        {!chatStarted && (
-          <div className="hero-text">
-            <div className="hero-subtitle">HELLO! I'M CAREER INTELLIGENCE</div>
+      {/* ── Hero ── */}
+      {!chatStarted && (
+        <main className="main-content">
+          <section className="hero-section">
+
+            {/* Eyebrow */}
+            <div className="hero-badge">
+              <span className="hero-badge-dot" />
+              AI-powered career guidance
+            </div>
+
+            {/* Title — serif, mixed italic like Steep */}
             <h1 className="hero-title">
-              <span>YOUR PERSONAL</span>
-              <span style={{ color: "#a855f7" }}>AI CAREER MENTOR</span>
+              Your personal guide to{" "}
+              <span className="hero-title-italic">smarter careers</span>
             </h1>
-            <p className="hero-desc">
-              I analyze your skills, predict your ideal role, and guide you with
-              personalized validation. Powered by XGBoost & Groq Llama 3.3.
+
+            <p className="hero-description">
+              Career.AI analyzes your skills, predicts your ideal career path,
+              and delivers personalized guidance — powered by machine learning
+              and modern LLM technology.
             </p>
-          </div>
-        )}
 
-        <div className="robot-container">
-          <div className="glow-circle"></div>
-          <Avatar3D />
-        </div>
-      </div>
+            {/* Feature chips */}
+            <div className="hero-features">
+              <div className="feature-item">
+                <div className="feature-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" />
+                  </svg>
+                </div>
+                <span>Skill Analysis</span>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                  </svg>
+                </div>
+                <span>Career Prediction</span>
+              </div>
+              <div className="feature-item">
+                <div className="feature-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                </div>
+                <span>Personalized Advice</span>
+              </div>
+            </div>
 
-      {/* Right Panel: Chat messages (only visible after chat starts) */}
+            {/* Stats */}
+            <div className="hero-stats">
+              <div className="stat-item">
+                <div className="stat-number">12+</div>
+                <div className="stat-label">Career Tracks</div>
+              </div>
+              <div className="stat-divider" />
+              <div className="stat-item">
+                <div className="stat-number">ML</div>
+                <div className="stat-label">Powered</div>
+              </div>
+              <div className="stat-divider" />
+              <div className="stat-item">
+                <div className="stat-number">24/7</div>
+                <div className="stat-label">Available</div>
+              </div>
+            </div>
+
+          </section>
+        </main>
+      )}
+
+      {/* ── Chat ── */}
       {chatStarted && (
         <div className="right-panel active">
-          <div className="chat-messages">
+          <div className="chat-messages" role="log" aria-live="polite">
             {messages.map((msg, i) => (
               <div key={i} className={`msg ${msg.role}`}>
                 {msg.role === "ai" && i === streamingIdx ? (
                   <TypewriterText
                     text={msg.content}
-                    speed={12}
+                    speed={10}
                     onComplete={() => setStreamingIdx(-1)}
                   />
                 ) : (
@@ -232,18 +269,25 @@ export default function App() {
                 )}
               </div>
             ))}
+
             {isLoading && (
-              <div className="msg ai">
-                <span className="typing-cursor" /> Thinking...
+              <div className="thinking-indicator">
+                <div className="thinking-dots">
+                  <span className="thinking-dot" />
+                  <span className="thinking-dot" />
+                  <span className="thinking-dot" />
+                </div>
+                <span className="thinking-label">Thinking…</span>
               </div>
             )}
+
             <div ref={messagesEndRef} />
           </div>
         </div>
       )}
 
-      {/* Chat Input: Always visible at bottom */}
-      <div className={`chat-input-wrapper ${chatStarted ? "chat-active" : ""}`}>
+      {/* ── Input ── */}
+      <div className="chat-input-wrapper">
         <div className="chat-input-container">
           <input
             ref={inputRef}
@@ -251,22 +295,25 @@ export default function App() {
             className="chat-input"
             placeholder={
               isLoading
-                ? "Waiting for response..."
-                : "Tell me about your skills..."
+                ? "Waiting for response…"
+                : "Tell me about your skills and experience…"
             }
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={isLoading}
+            aria-label="Chat input"
           />
           <button
-            className={`send-btn ${isLoading ? "send-btn-disabled" : ""}`}
+            className="send-btn"
             onClick={sendMessage}
-            disabled={isLoading}
+            disabled={isLoading || !input.trim()}
+            aria-label="Send message"
           >
-            ➤
+            <SendIcon />
           </button>
         </div>
+        <p className="input-hint">Enter to send · Shift+Enter for new line</p>
       </div>
     </div>
   );
