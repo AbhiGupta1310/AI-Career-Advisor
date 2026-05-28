@@ -24,7 +24,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*", "https://career-intelligence.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,10 +34,17 @@ app.add_middleware(
 app.include_router(chat.router)
 
 
+@app.get("/health")
 @app.get("/api/health")
 def health_check():
     """Health check endpoint."""
     return {"success": True, "message": "Career Intelligence API is running"}
+
+
+@app.get("/")
+def root():
+    """Root endpoint."""
+    return {"message": "Career API is running"}
 
 
 # Serve React static files (production)
