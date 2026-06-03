@@ -41,12 +41,6 @@ def health_check():
     return {"success": True, "message": "Career Intelligence API is running"}
 
 
-@app.get("/")
-def root():
-    """Root endpoint."""
-    return {"message": "Career API is running"}
-
-
 # Serve React static files (production)
 if STATIC_DIR.exists():
     app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets")), name="assets")
@@ -58,3 +52,9 @@ if STATIC_DIR.exists():
         if file_path.exists() and file_path.is_file():
             return FileResponse(str(file_path))
         return FileResponse(str(STATIC_DIR / "index.html"))
+else:
+    @app.get("/")
+    def root():
+        """Root endpoint when frontend is not built."""
+        return {"message": "Career API is running (Frontend build not found)"}
+
